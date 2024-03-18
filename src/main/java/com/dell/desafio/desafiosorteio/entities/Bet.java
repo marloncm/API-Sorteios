@@ -8,9 +8,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "aposta", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "cpf_apostador")
-})
+@Table(name = "aposta")
 public class Bet implements Serializable {
 
    //id must start at 1000
@@ -27,10 +25,8 @@ public class Bet implements Serializable {
     @Column(name = "cpf_apostador")
     private String betterCPF;
 
-    @ElementCollection
+    @Column(name = "numeros_escolhidos")
     private int[] chosenNumbers = new int[5];
-
-
 
     @ManyToOne
     private Draw draw;
@@ -38,6 +34,11 @@ public class Bet implements Serializable {
     private boolean winner;
 
     public Bet() {
+    }
+
+    public Bet(String betterName, String betterCPF) {
+        this.betterName = betterName;
+        this.betterCPF = betterCPF;
     }
 
     public Bet(String betterName, String betterCPF, int[] chosenNumbers) {
@@ -112,5 +113,23 @@ public class Bet implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id_bet);
+    }
+
+    public int[] surprise() {
+        int[] nums = new int[5];
+        for (int i = 0; i < 5; i++) {
+            nums[i] = (int) (Math.random() * 50) + 1;
+            System.out.println(nums[i]);
+        }
+        return nums;
+    }
+
+    public boolean checkNumbers(){
+        for(int i = 0; i < 5; i++){
+            if(chosenNumbers[i] > 50 || chosenNumbers[i] < 1){
+                return false;
+            }
+        }
+        return true;
     }
 }

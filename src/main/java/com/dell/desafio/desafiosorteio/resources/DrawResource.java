@@ -1,49 +1,40 @@
 package com.dell.desafio.desafiosorteio.resources;
 
 import com.dell.desafio.desafiosorteio.entities.Bet;
+import com.dell.desafio.desafiosorteio.entities.Draw;
 import com.dell.desafio.desafiosorteio.services.BetService;
+import com.dell.desafio.desafiosorteio.services.DrawService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 //@Validated
 @RestController
-@RequestMapping(value = "/bets")
-public class BetResource {
+@RequestMapping(value = "/draws")
+public class DrawResource {
     @Autowired
-    private BetService service;
+    private DrawService service;
 
     @GetMapping
-    public ResponseEntity<List<Bet>> findAll() {
-        List<Bet> list = service.findAll();
+    public ResponseEntity<List<Draw>> findAll() {
+        List<Draw> list = service.findAll();
         return ResponseEntity.ok().body(list);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Bet> findById(@PathVariable long id) {
-        Bet obj = service.findById(id);
+    public ResponseEntity<Draw> findById(@PathVariable long id) {
+        Draw obj = service.findById(id);
         return ResponseEntity.ok().body(obj);
     }
 
     @PostMapping
-    public ResponseEntity<?> insert(@Valid @RequestBody Bet obj) {
-        if(obj.checkNumbers()){
-            obj = service.save(obj);
-            return ResponseEntity.ok().body(obj);
-        }
-        return ResponseEntity.badRequest().body("Sua mensagem de erro aqui");
-    }
-
-    @PostMapping(value = "/surprise")
-    public ResponseEntity<Bet> insertSurprise(@Valid @RequestBody Bet obj) {
-        obj.setChosenNumbers(obj.surprise());
+    public ResponseEntity<Draw> insert(@Valid @RequestBody Draw obj) {
         obj = service.save(obj);
         return ResponseEntity.ok().body(obj);
     }
-
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
@@ -52,7 +43,7 @@ public class BetResource {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Bet> update(@PathVariable long id, @Valid @RequestBody Bet obj) {
+    public ResponseEntity<Draw> update(@PathVariable long id, @Valid @RequestBody Draw obj) {
         obj = service.update(id, obj);
         return ResponseEntity.ok().body(obj);
     }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,7 @@ public class Draw implements Serializable {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Bet> bets = new ArrayList<>();
 
-    @ElementCollection
+
     private int[] chosenNumbers = new int[25];
 
     //lista de apostadores que acertaram os números sorteados
@@ -61,6 +62,17 @@ public class Draw implements Serializable {
         this.chosenNumbers = chosenNumbers;
     }
 
+    public void setNumbers() {
+        for (int i = 0; i < 5; i++) {
+            this.chosenNumbers[i] = (int) (Math.random() * 50);
+        }
+
+    }
+
+    public void addNumber(int index){
+        this.chosenNumbers[index] = (int) (Math.random() * 50);
+    }
+
     public List<Bet> getWinners() {
         return winners;
     }
@@ -78,8 +90,46 @@ public class Draw implements Serializable {
         winners.add(bet);
     }
 
+    public void printWinners(){
+        winners.sort(Comparator.comparing(Bet::getBetterName));
+        System.out.println("Mostrando os vencedores do sorteio: ");
+        for (Bet bet : winners) {
+            System.out.println(bet.getBetterName());
+        }
+    }
+
+    public void sorteio(){
+        boolean hasWinner = false;
+        for(Bet bet : bets){
+            int acertos = 0;
+            for(int i=0; i< 5; i++){
+                for(int j=0; j<chosenNumbers.length; j++){
+                    if(bet.getChosenNumbers()[i] == chosenNumbers[j]){
+                        acertos++;
+                    }
+                    if(acertos == 5){
+                        bet.setWinner(true);
+                        hasWinner = true;
+                        winners.add(bet);
+                    }
+                }
+            }
+        }
+
+        if(!hasWinner){
+            for (int i = 5; i < 25; i++){
+                addNumber(i);
+                sorteio();
+            }
+            if(!hasWinner){
+                System.out.println("Este sorteio não teve vencedores.");
+            }
+        }else{
+            printWinners();
+        }
 
 
+    }
 
 
 }
