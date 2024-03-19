@@ -1,7 +1,9 @@
 package com.dell.desafio.desafiosorteio.resources;
 
 import com.dell.desafio.desafiosorteio.entities.Bet;
+import com.dell.desafio.desafiosorteio.entities.Draw;
 import com.dell.desafio.desafiosorteio.services.BetService;
+import com.dell.desafio.desafiosorteio.services.DrawService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ import java.util.List;
 public class BetResource {
     @Autowired
     private BetService service;
+
+    @Autowired
+    DrawService drawService;
 
     @GetMapping
     public ResponseEntity<List<Bet>> findAll() {
@@ -31,17 +36,31 @@ public class BetResource {
     @PostMapping
     public ResponseEntity<?> insert(@Valid @RequestBody Bet obj) {
         if(obj.checkNumbers()){
+            Draw lastDraw = drawService.findLastDraw();
+            if(!lastDraw.isFinished()){
+                lastDraw.addBet(obj);
+                lastDraw = drawService.update(lastDraw.getId_draw(), lastDraw);
             obj = service.save(obj);
             return ResponseEntity.ok().body(obj);
+        }else{
+            return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");
         }
-        return ResponseEntity.badRequest().body("Sua mensagem de erro aqui");
+            }
+        return ResponseEntity.badRequest().body("Informe cinco numeros de 1 a 50.");
     }
 
     @PostMapping(value = "/surprise")
-    public ResponseEntity<Bet> insertSurprise(@Valid @RequestBody Bet obj) {
+    public ResponseEntity<?> insertSurprise(@Valid @RequestBody Bet obj) {
         obj.setChosenNumbers(obj.surprise());
-        obj = service.save(obj);
-        return ResponseEntity.ok().body(obj);
+        Draw lastDraw = drawService.findLastDraw();
+        if(!lastDraw.isFinished()) {
+            lastDraw.addBet(obj);
+            lastDraw = drawService.update(lastDraw.getId_draw(), lastDraw);
+            obj = service.save(obj);
+            return ResponseEntity.ok().body(obj);
+        }else{
+            return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");
+        }
     }
 
 

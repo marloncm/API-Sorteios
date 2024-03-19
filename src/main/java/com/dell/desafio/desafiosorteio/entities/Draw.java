@@ -15,6 +15,7 @@ public class Draw implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id_draw;
+    private boolean finished = false;
 
     //lista de todos os apostadores desse sorteio
     @OneToMany(cascade = CascadeType.ALL)
@@ -27,11 +28,14 @@ public class Draw implements Serializable {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Bet> winners = new ArrayList<>();
 
-    public Draw() {
+
+    //inicia um novo sorteio zerado
+    public Draw(){
+        this.chosenNumbers = drawNumbers();
     }
 
-    public Draw(long id_draw, List<Bet> bets, int[] chosenNumbers, List<Bet> winners) {
-        this.id_draw = id_draw;
+
+    public Draw(List<Bet> bets, int[] chosenNumbers, List<Bet> winners) {
         this.bets = bets;
         this.chosenNumbers = chosenNumbers;
         this.winners = winners;
@@ -59,14 +63,16 @@ public class Draw implements Serializable {
     }
 
     public void setChosenNumbers(int[] chosenNumbers) {
-        this.chosenNumbers = chosenNumbers;
+        this.chosenNumbers = drawNumbers();
     }
 
-    public void setNumbers() {
+    public int[] drawNumbers() {
+        int[] nums = new int[5];
         for (int i = 0; i < 5; i++) {
-            this.chosenNumbers[i] = (int) (Math.random() * 50);
+            nums[i] = (int) (Math.random() * 50) + 1;
+            System.out.println(nums[i]);
         }
-
+        return nums;
     }
 
     public void addNumber(int index){
@@ -131,5 +137,9 @@ public class Draw implements Serializable {
 
     }
 
+
+    public boolean isFinished() {
+        return finished;
+    }
 
 }

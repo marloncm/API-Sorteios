@@ -39,4 +39,9 @@ public class DrawService {
      obj.setChosenNumbers(draw.getChosenNumbers());
      obj.setWinners(draw.getWinners());
     }
+
+    public Draw findLastDraw() {
+        List<Draw> list = repo.findAll();
+        return list.get(list.size() - 1);
+    }
 }
