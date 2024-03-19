@@ -30,15 +30,11 @@ public class DrawService {
 
     public Draw update(long id, Draw draw) {
         Draw obj = findById(id);
-        updateData(obj, draw);
+        obj.updateData(draw);
         return repo.save(obj);
     }
 
-    private void updateData(Draw obj, Draw draw) {
-     obj.setBets(draw.getBets());
-     obj.setChosenNumbers(draw.getChosenNumbers());
-     obj.setWinners(draw.getWinners());
-    }
+
 
     public Draw findLastDraw() {
         List<Draw> list = repo.findAll();

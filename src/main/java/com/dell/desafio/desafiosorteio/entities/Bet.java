@@ -15,7 +15,7 @@ public class Bet implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bet_sequence")
     @SequenceGenerator(name = "bet_sequence", sequenceName = "bet_sequence", allocationSize = 1, initialValue = 1000)
-    private long id_bet;
+    private long idBet;
 
     @NotNull
     @Column(name = "nome_apostador")
@@ -47,27 +47,27 @@ public class Bet implements Serializable {
         this.chosenNumbers = chosenNumbers;
     }
 
-    public Bet(long id_bet, String betterName, String betterCPF, int[] chosenNumbers) {
-        this.id_bet = id_bet;
+    public Bet(long idBet, String betterName, String betterCPF, int[] chosenNumbers) {
+        this.idBet = idBet;
         this.betterName = betterName;
         this.betterCPF = betterCPF;
         this.chosenNumbers = chosenNumbers;
     }
 
-    public Bet(long id_bet, String betterName, String betterCPF, int[] chosenNumbers, boolean winner) {
-        this.id_bet = id_bet;
+    public Bet(long idBet, String betterName, String betterCPF, int[] chosenNumbers, boolean winner) {
+        this.idBet = idBet;
         this.betterName = betterName;
         this.betterCPF = betterCPF;
         this.chosenNumbers = chosenNumbers;
         this.winner = winner;
     }
 
-    public long getId_bet() {
-        return id_bet;
+    public long getIdBet() {
+        return idBet;
     }
 
-    public void setId_bet(long id_bet) {
-        this.id_bet = id_bet;
+    public void setIdBet(long idBet) {
+        this.idBet = idBet;
     }
 
     public String getBetterName() {
@@ -107,12 +107,12 @@ public class Bet implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bet bet = (Bet) o;
-        return id_bet == bet.id_bet;
+        return idBet == bet.idBet;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id_bet);
+        return Objects.hash(idBet);
     }
 
     public int[] surprise() {
@@ -131,5 +131,12 @@ public class Bet implements Serializable {
             }
         }
         return true;
+    }
+
+    public void updateData(Bet bet) {
+        this.setBetterName(bet.getBetterName());
+        this.setBetterCPF(bet.getBetterCPF());
+        this.setChosenNumbers(bet.getChosenNumbers());
+        this.setWinner(bet.isWinner());
     }
 }

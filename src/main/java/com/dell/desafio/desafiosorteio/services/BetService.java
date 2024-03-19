@@ -31,16 +31,11 @@ public class BetService {
 
     public Bet update(long id, Bet bet) {
         Bet obj = findById(id);
-        updateData(obj, bet);
+        obj.updateData(bet);
         return repo.save(obj);
     }
 
-    private void updateData(Bet obj, Bet bet) {
-        obj.setBetterName(bet.getBetterName());
-        obj.setBetterCPF(bet.getBetterCPF());
-        obj.setChosenNumbers(bet.getChosenNumbers());
-        obj.setWinner(bet.isWinner());
-    }
+
 
 
 

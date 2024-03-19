@@ -14,7 +14,7 @@ public class Draw implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id_draw;
+    private long idDraw;
     private boolean finished = false;
 
     //lista de todos os apostadores desse sorteio
@@ -42,12 +42,12 @@ public class Draw implements Serializable {
     }
 
 
-    public long getId_draw() {
-        return id_draw;
+    public long getIdDraw() {
+        return idDraw;
     }
 
-    public void setId_draw(long id_draw) {
-        this.id_draw = id_draw;
+    public void setIdDraw(long idDraw) {
+        this.idDraw = idDraw;
     }
 
     public List<Bet> getBets() {
@@ -142,4 +142,10 @@ public class Draw implements Serializable {
         return finished;
     }
 
+
+    public void updateData(Draw draw) {
+        this.setBets(draw.getBets());
+        this.setChosenNumbers(draw.getChosenNumbers());
+        this.setWinners(draw.getWinners());
+    }
 }
