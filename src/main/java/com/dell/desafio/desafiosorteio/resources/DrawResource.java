@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 
 //@Validated
@@ -30,10 +31,11 @@ public class DrawResource {
         return ResponseEntity.ok().body(obj);
     }
 
-    @PostMapping
-    public ResponseEntity<Draw> insert(@Valid @RequestBody Draw obj) {
-        obj = service.save(obj);
-        return ResponseEntity.ok().body(obj);
+    @PostMapping(value = "/new")
+    public ResponseEntity<Draw> insert() {
+        Draw draw = new Draw();
+        service.save(draw);
+        return ResponseEntity.ok().body(draw);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -48,4 +50,23 @@ public class DrawResource {
         return ResponseEntity.ok().body(obj);
     }
 
+    @PutMapping(value = "/sortear")
+    public void sortear(){
+        Draw lastDraw = service.findLastDraw();
+        lastDraw.sorteio();
+        service.update(lastDraw.getIdDraw(), lastDraw);
+    }
+
+    @GetMapping(value = "/vencedores")
+    public ResponseEntity<?> vencedores(){
+        Draw lastDraw = service.findLastDraw();
+            if(lastDraw.getWinners() != null){
+                List<Bet> winners = lastDraw.getWinners();
+                winners.sort(Comparator.comparing(Bet::getBetterName));
+                return ResponseEntity.ok().body(winners);
+            }else{
+                return ResponseEntity.badRequest().body("Sorteio sem vencedores.");
+            }
+
+    }
 }

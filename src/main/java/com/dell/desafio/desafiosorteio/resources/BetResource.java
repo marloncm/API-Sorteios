@@ -35,14 +35,14 @@ public class BetResource {
     }
 
     @PostMapping //problema de atomicidade
-    public ResponseEntity<?> insert(@Valid @RequestBody Bet obj) {
-        if(obj.checkNumbers()){
+    public ResponseEntity<?> insert(@Valid @RequestBody Bet bet) {
+        if(bet.checkNumbers()){
             Draw lastDraw = drawService.findLastDraw();
             if(!lastDraw.isFinished()){
-                lastDraw.addBet(obj);
-                lastDraw = drawService.update(lastDraw.getIdDraw(), lastDraw);
-                obj = service.save(obj);
-                return ResponseEntity.ok().body(obj);
+                lastDraw.addBet(bet);
+                drawService.update(lastDraw.getIdDraw(), lastDraw);
+                //service.save(bet);
+                return ResponseEntity.ok().body(bet);
             }else{
                 return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");
             }
@@ -51,14 +51,14 @@ public class BetResource {
     }
 
     @PostMapping(value = "/surprise")
-    public ResponseEntity<?> insertSurprise(@Valid @RequestBody Bet obj) {
-        obj.setChosenNumbers(obj.surprise());
+    public ResponseEntity<?> insertSurprise(@Valid @RequestBody Bet bet) {
+        bet.setChosenNumbers(bet.surprise());
         Draw lastDraw = drawService.findLastDraw();
         if(!lastDraw.isFinished()) {
-            lastDraw.addBet(obj);
-            lastDraw = drawService.update(lastDraw.getIdDraw(), lastDraw);
-            obj = service.save(obj);
-            return ResponseEntity.ok().body(obj);
+            lastDraw.addBet(bet);
+            drawService.update(lastDraw.getIdDraw(), lastDraw);
+            //service.save(bet);
+            return ResponseEntity.ok().body(bet);
         }else{
             return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");
         }

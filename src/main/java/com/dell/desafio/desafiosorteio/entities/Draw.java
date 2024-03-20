@@ -22,7 +22,10 @@ public class Draw implements Serializable {
     private List<Bet> bets = new ArrayList<>();
 
 
-    private int[] chosenNumbers = new int[25];
+   // private int[] chosenNumbers = new int[25];
+
+    @ElementCollection
+    private List<Integer> numerosSorteados = new ArrayList<>();
 
     //lista de apostadores que acertaram os números sorteados
     @OneToMany(cascade = CascadeType.ALL)
@@ -31,15 +34,15 @@ public class Draw implements Serializable {
 
     //inicia um novo sorteio zerado
     public Draw(){
-        this.chosenNumbers = drawNumbers();
+        this.numerosSorteados = drawNumbers();
     }
 
 
-    public Draw(List<Bet> bets, int[] chosenNumbers, List<Bet> winners) {
+  /*  public Draw(List<Bet> bets, int[] chosenNumbers, List<Bet> winners) {
         this.bets = bets;
         this.chosenNumbers = chosenNumbers;
         this.winners = winners;
-    }
+    }*/
 
 
     public long getIdDraw() {
@@ -58,25 +61,24 @@ public class Draw implements Serializable {
         this.bets = bets;
     }
 
-    public int[] getChosenNumbers() {
+  /*  public int[] getChosenNumbers() {
         return chosenNumbers;
     }
 
     public void setChosenNumbers(int[] chosenNumbers) {
-        this.chosenNumbers = drawNumbers();
-    }
+        this.chosenNumbers = chosenNumbers;
+    }*/
 
-    public int[] drawNumbers() {
-        int[] nums = new int[5];
+    public List<Integer> drawNumbers() {
+        List<Integer> numeros = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            nums[i] = (int) (Math.random() * 50) + 1;
-            System.out.println(nums[i]);
+            numeros.add((int) (Math.random() * 50) + 1) ;
         }
-        return nums;
+        return numeros;
     }
 
-    public void addNumber(int index){
-        this.chosenNumbers[index] = (int) (Math.random() * 50);
+    public void addNumber(){
+        numerosSorteados.add((int) (Math.random() * 50));
     }
 
     public List<Bet> getWinners() {
@@ -85,6 +87,14 @@ public class Draw implements Serializable {
 
     public void setWinners(List<Bet> winners) {
         this.winners = winners;
+    }
+
+    public List<Integer> getChosenNumbers() {
+        return numerosSorteados;
+    }
+
+    public void setChosenNumbers(List<Integer> chosenNumbers) {
+        this.numerosSorteados = chosenNumbers;
     }
 
 
@@ -96,6 +106,7 @@ public class Draw implements Serializable {
         winners.add(bet);
     }
 
+/*
     public void printWinners(){
         winners.sort(Comparator.comparing(Bet::getBetterName));
         System.out.println("Mostrando os vencedores do sorteio: ");
@@ -103,15 +114,19 @@ public class Draw implements Serializable {
             System.out.println(bet.getBetterName());
         }
     }
+*/
+
 
     public void sorteio(){
         boolean hasWinner = false;
-        for(Bet bet : bets){
+        for(Bet bet : bets){ //pra cada aposta...
             int acertos = 0;
-            for(int i=0; i< 5; i++){
-                for(int j=0; j<chosenNumbers.length; j++){
-                    if(bet.getChosenNumbers()[i] == chosenNumbers[j]){
+            for(int i=0; i< 5; i++){ // pra cada numero apostado...
+
+                for(Integer numero: numerosSorteados){
+                    if(bet.getChosenNumbers()[i] == numero){
                         acertos++;
+
                     }
                     if(acertos == 5){
                         bet.setWinner(true);
@@ -123,17 +138,15 @@ public class Draw implements Serializable {
         }
 
         if(!hasWinner){
-            for (int i = 5; i < 25; i++){
-                addNumber(i);
+            for (int i = 0; i < 20; i++){
+                addNumber();
                 sorteio();
             }
             if(!hasWinner){
                 System.out.println("Este sorteio não teve vencedores.");
             }
-        }else{
-            printWinners();
         }
-
+        finished = true;
 
     }
 
