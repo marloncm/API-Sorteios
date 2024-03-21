@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Entity
-@Table(name = "sorteio")
 public class Draw implements Serializable {
     private final long SerialVersionUID = 1L;
 
@@ -21,30 +19,23 @@ public class Draw implements Serializable {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Bet> bets = new ArrayList<>();
 
-
-   // private int[] chosenNumbers = new int[25];
-
     @ElementCollection
-    private List<Integer> numerosSorteados = new ArrayList<>();
+    private List<Integer> chosenNumbers = new ArrayList<>();
 
     //lista de apostadores que acertaram os números sorteados
     @OneToMany(cascade = CascadeType.ALL)
     private List<Bet> winners = new ArrayList<>();
 
 
-    //inicia um novo sorteio zerado
+    //Construtores
+
+    //inicia um novo sorteio zerado e já com os 5 primeiros números sorteados
     public Draw(){
-        this.numerosSorteados = drawNumbers();
+        this.chosenNumbers = drawNumbers();
     }
 
 
-  /*  public Draw(List<Bet> bets, int[] chosenNumbers, List<Bet> winners) {
-        this.bets = bets;
-        this.chosenNumbers = chosenNumbers;
-        this.winners = winners;
-    }*/
-
-
+    //Getters e Setters
     public long getIdDraw() {
         return idDraw;
     }
@@ -61,24 +52,9 @@ public class Draw implements Serializable {
         this.bets = bets;
     }
 
-  /*  public int[] getChosenNumbers() {
-        return chosenNumbers;
-    }
-
-    public void setChosenNumbers(int[] chosenNumbers) {
-        this.chosenNumbers = chosenNumbers;
-    }*/
-
-    public List<Integer> drawNumbers() {
-        List<Integer> numeros = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            numeros.add((int) (Math.random() * 50) + 1) ;
-        }
-        return numeros;
-    }
-
+    //adiciona um novo número para a lista de números sorteados
     public void addNumber(){
-        numerosSorteados.add((int) (Math.random() * 50));
+        chosenNumbers.add((int) (Math.random() * 50));
     }
 
     public List<Bet> getWinners() {
@@ -90,75 +66,92 @@ public class Draw implements Serializable {
     }
 
     public List<Integer> getChosenNumbers() {
-        return numerosSorteados;
+        return chosenNumbers;
     }
 
     public void setChosenNumbers(List<Integer> chosenNumbers) {
-        this.numerosSorteados = chosenNumbers;
+        this.chosenNumbers = chosenNumbers;
     }
-
 
     public void addBet(Bet bet){
         bets.add(bet);
+    }
+
+    public boolean isFinished() {
+        return finished;
     }
 
     public void addWinner(Bet bet){
         winners.add(bet);
     }
 
-/*
-    public void printWinners(){
-        winners.sort(Comparator.comparing(Bet::getBetterName));
-        System.out.println("Mostrando os vencedores do sorteio: ");
-        for (Bet bet : winners) {
-            System.out.println(bet.getBetterName());
+
+    //sorteia 5 números aleatórios
+    public List<Integer> drawNumbers() {
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            numbers.add((int) (Math.random() * 50) + 1) ;
         }
+        return numbers;
     }
-*/
 
-
-    public void sorteio(){
+    //lógica para apuração dos vencedores
+    public Draw checkWinner(){
         boolean hasWinner = false;
-        for(Bet bet : bets){ //pra cada aposta...
-            int acertos = 0;
-            for(int i=0; i< 5; i++){ // pra cada numero apostado...
-
-                for(Integer numero: numerosSorteados){
-                    if(bet.getChosenNumbers()[i] == numero){
-                        acertos++;
+        for(Bet bet : bets){ //para cada aposta...
+            int hits = 0;
+            for(Integer betNumber: bet.getChosenNumbers()){ // para cada numero apostado...
+                for(Integer drawNumber: chosenNumbers){ //para cada numero sorteado...
+                    if(betNumber.intValue() == drawNumber.intValue()){
+                        hits++; //se encontrar um número sorteado igual a um número apostado, incrementa o contador de acertos
 
                     }
-                    if(acertos == 5){
-                        bet.setWinner(true);
-                        hasWinner = true;
+                    if(hits == 5){ //se o contador de acertos chegar a 5, a aposta é vencedora
+
+                        hasWinner = true; //não precisa sortear um número adicional
                         winners.add(bet);
                     }
                 }
             }
         }
 
-        if(!hasWinner){
+        if(!hasWinner){ //se não houver vencedores, sorteia mais 20 números
             for (int i = 0; i < 20; i++){
-                addNumber();
-                sorteio();
+                addNumber(); //adiciona um número sorteado
+                checkWinner(); //chama o método novamente para verificar se há vencedores
             }
-            if(!hasWinner){
+            if(!hasWinner){ //se mesmo após 25 números sorteados não houver vencedores, o sorteio é finalizado
                 System.out.println("Este sorteio não teve vencedores.");
             }
         }
         finished = true;
 
+        return this;
     }
 
 
-    public boolean isFinished() {
-        return finished;
+
+
+    public String printNumerosSorteados(){
+        String numeros = "";
+        for (Integer numero: chosenNumbers) {
+            numeros += numero + " ";
+        }
+        return numeros;
     }
 
+    public String printWinners(){
+        String winners = "Total de vencedores: " + this.winners.size() + "\n";
+        for (Bet bet: this.winners) {
+            winners += bet.getBetterName() + "\n";
+        }
+        return winners;
+    }
 
     public void updateData(Draw draw) {
-        this.setBets(draw.getBets());
-        this.setChosenNumbers(draw.getChosenNumbers());
-        this.setWinners(draw.getWinners());
+        this.chosenNumbers = draw.getChosenNumbers();
+        this.winners = draw.getWinners();
+        this.bets = draw.getBets();
+        this.finished = draw.isFinished();
     }
 }

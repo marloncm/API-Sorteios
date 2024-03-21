@@ -31,7 +31,7 @@ public class DrawResource {
         return ResponseEntity.ok().body(obj);
     }
 
-    @PostMapping(value = "/new")
+    @PostMapping(value = "/startNewDraw")
     public ResponseEntity<Draw> insert() {
         Draw draw = new Draw();
         service.save(draw);
@@ -45,19 +45,20 @@ public class DrawResource {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Draw> update(@PathVariable long id, @Valid @RequestBody Draw obj) {
-        obj = service.update(id, obj);
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<Draw> update(@PathVariable long id, @Valid @RequestBody Draw draw) {
+        draw = service.update(id, draw);
+        return ResponseEntity.ok().body(draw);
     }
 
-    @PutMapping(value = "/sortear")
-    public void sortear(){
+    @PutMapping(value = "/makeDraw")
+    public ResponseEntity<?> makeDraw(){
         Draw lastDraw = service.findLastDraw();
-        lastDraw.sorteio();
-        service.update(lastDraw.getIdDraw(), lastDraw);
+        //lastDraw.checkWinner();
+        service.update(lastDraw.getIdDraw(), lastDraw.checkWinner());
+        return ResponseEntity.ok().body(lastDraw);
     }
 
-    @GetMapping(value = "/vencedores")
+    @GetMapping(value = "/winners")
     public ResponseEntity<?> vencedores(){
         Draw lastDraw = service.findLastDraw();
             if(lastDraw.getWinners() != null){
@@ -68,5 +69,28 @@ public class DrawResource {
                 return ResponseEntity.badRequest().body("Sorteio sem vencedores.");
             }
 
+    }
+
+    @GetMapping(value = "/getTotalWinners")
+    public ResponseEntity<?> totalWinners(){
+        Draw lastDraw = service.findLastDraw();
+        if(lastDraw.getWinners() != null){
+            return ResponseEntity.ok().body(lastDraw.getWinners().size() + "");
+        }else{
+            return ResponseEntity.badRequest().body("Sorteio sem vencedores.");
+        }
+
+    }
+
+    @GetMapping(value = "/getDrawnNumbers")
+    public ResponseEntity<?> drawnNumbers(){
+        Draw lastDraw = service.findLastDraw();
+        return ResponseEntity.ok().body(lastDraw.getChosenNumbers().toArray());
+    }
+
+    @GetMapping(value = "/getAllBets")
+    public ResponseEntity<?> allBets(){
+        Draw lastDraw = service.findLastDraw();
+        return ResponseEntity.ok().body(lastDraw.getBets());
     }
 }

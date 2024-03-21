@@ -31,7 +31,7 @@ public class DrawService {
     public Draw update(long id, Draw draw) {
         Draw obj = findById(id);
         obj.updateData(draw);
-        return repo.save(obj);
+        return repo.save(draw);
     }
 
 

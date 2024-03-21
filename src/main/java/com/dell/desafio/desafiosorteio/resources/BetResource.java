@@ -7,7 +7,6 @@ import com.dell.desafio.desafiosorteio.services.DrawService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -34,14 +33,13 @@ public class BetResource {
         return ResponseEntity.ok().body(obj);
     }
 
-    @PostMapping //problema de atomicidade
+    @PostMapping
     public ResponseEntity<?> insert(@Valid @RequestBody Bet bet) {
         if(bet.checkNumbers()){
             Draw lastDraw = drawService.findLastDraw();
             if(!lastDraw.isFinished()){
                 lastDraw.addBet(bet);
                 drawService.update(lastDraw.getIdDraw(), lastDraw);
-                //service.save(bet);
                 return ResponseEntity.ok().body(bet);
             }else{
                 return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");
@@ -57,7 +55,6 @@ public class BetResource {
         if(!lastDraw.isFinished()) {
             lastDraw.addBet(bet);
             drawService.update(lastDraw.getIdDraw(), lastDraw);
-            //service.save(bet);
             return ResponseEntity.ok().body(bet);
         }else{
             return ResponseEntity.badRequest().body("O sorteio já foi finalizado. Comece um novo sorteio");

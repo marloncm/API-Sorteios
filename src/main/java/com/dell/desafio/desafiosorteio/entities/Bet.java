@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "aposta")
 public class Bet implements Serializable {
 
    //id must start at 1000
@@ -18,20 +20,19 @@ public class Bet implements Serializable {
     private long idBet;
 
     @NotNull
-    @Column(name = "nome_apostador")
     private String betterName;
 
     @NotNull
-    @Column(name = "cpf_apostador")
     private String betterCPF;
 
-    @Column(name = "numeros_escolhidos")
-    private int[] chosenNumbers = new int[5];
+    //private int[] chosenNumbers = new int[5];
+    @ElementCollection
+    private List<Integer> chosenNumbers = new ArrayList<>();
 
     @ManyToOne
     private Draw draw;
 
-    private boolean winner;
+
 
     public Bet() {
     }
@@ -41,26 +42,28 @@ public class Bet implements Serializable {
         this.betterCPF = betterCPF;
     }
 
-    public Bet(String betterName, String betterCPF, int[] chosenNumbers) {
+    public Bet(String betterName, String betterCPF, List<Integer> chosenNumbers) {
         this.betterName = betterName;
         this.betterCPF = betterCPF;
         this.chosenNumbers = chosenNumbers;
     }
 
-    public Bet(long idBet, String betterName, String betterCPF, int[] chosenNumbers) {
+    public Bet(String betterName, String betterCPF, int[] numbers) {
+        this.betterName = betterName;
+        this.betterCPF = betterCPF;
+        for (int i = 0; i < 5; i++) {
+            this.chosenNumbers.add(numbers[i]);
+        }
+    }
+
+    public Bet(long idBet, String betterName, String betterCPF, List<Integer> chosenNumbers) {
         this.idBet = idBet;
         this.betterName = betterName;
         this.betterCPF = betterCPF;
         this.chosenNumbers = chosenNumbers;
     }
 
-    public Bet(long idBet, String betterName, String betterCPF, int[] chosenNumbers, boolean winner) {
-        this.idBet = idBet;
-        this.betterName = betterName;
-        this.betterCPF = betterCPF;
-        this.chosenNumbers = chosenNumbers;
-        this.winner = winner;
-    }
+
 
     public long getIdBet() {
         return idBet;
@@ -86,21 +89,14 @@ public class Bet implements Serializable {
         this.betterCPF = betterCPF;
     }
 
-    public int[] getChosenNumbers() {
+    public List<Integer> getChosenNumbers() {
         return chosenNumbers;
     }
 
-    public void setChosenNumbers(int[] chosenNumbers) {
+    public void setChosenNumbers(List<Integer> chosenNumbers) {
         this.chosenNumbers = chosenNumbers;
     }
 
-    public boolean isWinner() {
-        return winner;
-    }
-
-    public void setWinner(boolean winner) {
-        this.winner = winner;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -115,18 +111,17 @@ public class Bet implements Serializable {
         return Objects.hash(idBet);
     }
 
-    public int[] surprise() {
-        int[] nums = new int[5];
+    public List<Integer> surprise() {
+        List<Integer> nums = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            nums[i] = (int) (Math.random() * 50) + 1;
-            System.out.println(nums[i]);
+            nums.add((int) (Math.random() * 50) + 1);
         }
         return nums;
     }
 
     public boolean checkNumbers(){
-        for(int i = 0; i < 5; i++){
-            if(chosenNumbers[i] > 50 || chosenNumbers[i] < 1){
+        for(Integer i : chosenNumbers){
+            if(i > 50 || i < 1){
                 return false;
             }
         }
@@ -137,6 +132,5 @@ public class Bet implements Serializable {
         this.setBetterName(bet.getBetterName());
         this.setBetterCPF(bet.getBetterCPF());
         this.setChosenNumbers(bet.getChosenNumbers());
-        this.setWinner(bet.isWinner());
     }
 }
